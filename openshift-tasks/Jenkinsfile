@@ -37,6 +37,10 @@ podTemplate(
       // Set the tag for the production image: version
       def prodTag = version
 
+      // Set Development and Production Project Names
+      def devProject  = "${GUID}-tasks-dev"
+      def prodProject = "${GUID}-tasks-prod"
+
       // Using Maven build the war file
       // Do not run tests in this step
       stage('Build war') {
@@ -84,7 +88,7 @@ podTemplate(
             // Jenkins workspace
             script {
               openshift.withCluster() {
-                openshift.withProject("openshift-tasks") {
+                openshift.withProject("${devProject}") {
                   openshift.selector("bc", "tasks").startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
 
                   // OR use the file you just published into Nexus:
