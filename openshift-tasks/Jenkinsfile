@@ -33,7 +33,7 @@ podTemplate(
       def version = getVersionFromPom("pom.xml")
 
       // TBD Set the tag for the development image: version + build number
-      def devTag  = version + "-" + "${env.BUILD_NUMBER}
+      def devTag  = version + "-" + "${env.BUILD_NUMBER}"
       // Set the tag for the production image: version
       def prodTag = version
 
