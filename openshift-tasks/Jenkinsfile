@@ -90,8 +90,8 @@ podTemplate(
                 openshift.withProject() {
                   echo "Using project: ${openshift.project()}"
                   echo "Running openshift.selector"
-                  openshift.verbose()
-                  openshift.selector("bc", "jenkins-agent-appdev").startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
+                  // start build of image based on standard eap template 
+                  openshift.selector("bc", "eap71-basic-s2i").startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
 
                   // OR use the file you just published into Nexus:
                   // "--from-file=http://nexus3.${prefix}-nexus.svc.cluster.local:8081/repository/releases/org/jboss/quickstarts/eap/tasks/${version}/tasks-${version}.war"
