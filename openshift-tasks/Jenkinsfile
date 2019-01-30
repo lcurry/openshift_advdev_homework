@@ -80,8 +80,7 @@ podTemplate(
       stage('Build and Tag OpenShift Image') {
 
         // TBD: Build Image, tag Image
-        steps {
-          echo "Building OpenShift container image tasks:${devTag}"
+          echo "Building OpenShift container image tasks: ${devTag}"
 
             // Start Binary Build in OpenShift using the file we just published
             // The filename is openshift-tasks.war in the 'target' directory of your current
@@ -97,7 +96,7 @@ podTemplate(
                 }
               }
             }
-        }
+
 
 
 
