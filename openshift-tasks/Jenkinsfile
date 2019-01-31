@@ -40,6 +40,7 @@ podTemplate(
       def templatePath = '../bin/eap71-basic-s2i.yml'
 
       // Set Development and Production Project Names
+      def jenkinsProject = "${GUID}-jenkins"
       def devProject  = "${GUID}-tasks-dev"
       def prodProject = "${GUID}-tasks-prod"
 
@@ -130,7 +131,7 @@ podTemplate(
         openshift.withCluster() {
           openshift.withProject("${devProject}") {
 
-            openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
+            openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${jenkinsProject}/tasks:${devTag}")
             // Deploy the development application.
             openshift.selector("dc", "tasks").rollout().latest();
             // Wait for application to be deployed
