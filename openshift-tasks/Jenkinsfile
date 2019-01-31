@@ -96,7 +96,7 @@ podTemplate(
                   if (!openshift.selector("bc", "tasks").exists()) {
                     // Create image build config
                     echo "bc does not exist..."
-                    def np = openshift.newBuild("--name=tasks", "--image-stream=jboss-eap71-openshift:1.3", "--binary")
+                    def nb = openshift.newBuild("--name=tasks", "--image-stream=jboss-eap71-openshift:1.3", "--binary")
                     echo "newBuild created: ${nb.count()} objects : ${nb.names()}"
                   }
 
