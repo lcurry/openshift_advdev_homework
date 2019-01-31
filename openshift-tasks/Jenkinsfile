@@ -96,13 +96,13 @@ podTemplate(
                   if (!openshift.selector("bc", "tasks-bc").exists()) {
                     // Create image build config
                     echo "bc does not exist..."
-                    def np = openshift.newBuild("--name=tasks-bc", "--image-stream=jboss-eap71-openshift:1.3", "--binary")
+                    def np = openshift.newBuild("--name=tasks", "--image-stream=jboss-eap71-openshift:1.3", "--binary")
                     echo "newBuild created: ${nb.count()} objects : ${nb.names()}"
                   }
 
 
                   // start build of image based on standard eap template
-                  openshift.selector("bc", "tasks-bc").startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
+                  openshift.selector("bc", "tasks").startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
 
                   // OR use the file you just published into Nexus:
                   // "--from-file=http://nexus3.${prefix}-nexus.svc.cluster.local:8081/repository/releases/org/jboss/quickstarts/eap/tasks/${version}/tasks-${version}.war"
