@@ -93,7 +93,7 @@ podTemplate(
                   echo "Using project: ${openshift.project()}"
                   echo "Running openshift.selector"
                   // Create image build config
-                  np = openshift.newBuild("--name=tasks-bc", "--image-stream=eap71-basic-s2i:1.3", "--binary")
+                  np = openshift.newBuild("--name=tasks-bc", "--image-stream=jboss-eap71-openshift:1.3", "--binary")
 
                   echo "newBuild created: ${nb.count()} objects : ${nb.names()}"
 
