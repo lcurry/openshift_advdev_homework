@@ -92,7 +92,7 @@ podTemplate(
             script {
               openshift.withCluster() {
                 openshift.withProject() {
-                  echo "Using project: ${openshift.project()}"
+                  echo "Using project!: ${openshift.project()}"
                   echo "Running openshift.selector.exists()"
                 // start build of image based on standard eap template
                   def buildConfig = openshift.selector("bc", "tasks")
