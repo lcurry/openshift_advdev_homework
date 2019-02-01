@@ -15,6 +15,7 @@ podTemplate(
   ]
 ) {
   node('skopeo-pod') {
+    echo "Starting Jenkinsfile"
     // Define Maven Command to point to the correct
     // settings for our Nexus installation
     def mvnCmd = "mvn -s ../nexus_settings.xml"
@@ -122,7 +123,7 @@ podTemplate(
 
         // TBD: Copy image to Nexus container registry
         echo "Copy the tested container image to the shared Nexus container registry"
-        sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:redhat docker://docker-registry.default.svc.cluster.local:5000/${jenkinsProject}/tasks:${devTag} docker://nexus3-registry.gpte-hw-cicd-nexus.svc.cluster.local:5000/tasks:${devTag}"
+        sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:redhat docker://docker-registry.default.svc.cluster.local:5000/${jenkinsProject}/tasks:${devTag} docker://nexus3.gpte-hw-cicd.svc.cluster.local:8081/tasks:${devTag}"
 
         // TBD: Tag the built image with the production tag.
       }
@@ -143,6 +144,7 @@ podTemplate(
             //openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
             //openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc.cluster.local:5000/${jenkinsProject}/tasks:${devTag}")
             openshift.set("image", "dc/tasks", "tasks=nexus3-registry.gpte-hw-cicd-nexus.svc.cluster.local:5000/tasks:${devTag}")
+
 
             // Deploy the development application.
             openshift.selector("dc", "tasks").rollout().latest();
