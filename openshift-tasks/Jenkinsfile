@@ -128,7 +128,7 @@ podTemplate(
 
         openshift.withCluster() {
           openshift.withProject("${devProject}") {
-            echo "Trying to ... -${dc_version} to be ready"
+            echo "Trying to set image location on dc/tasks in ${devProject}"
 
             //openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
             openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc.cluster.local:5000/${devProject}/tasks:${devTag}")
