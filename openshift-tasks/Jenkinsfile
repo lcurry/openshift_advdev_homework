@@ -114,10 +114,8 @@ podTemplate(
               }
             }
 
-
-
-
       }
+
 
       // Deploy the built image to the Development Environment.
       stage('Deploy to Dev') {
@@ -132,8 +130,8 @@ podTemplate(
           openshift.withProject("${devProject}") {
             echo "Trying to ... -${dc_version} to be ready"
 
-            openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
-            docker://docker-registry-default.apps.da05.openshift.opentlc.com/kk-jenkins/jenkins-agent-appdev
+            //openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
+            openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc.cluster.local:5000/${devProject}/tasks:${devTag}")
 
             // Deploy the development application.
             openshift.selector("dc", "tasks").rollout().latest();
@@ -151,9 +149,6 @@ podTemplate(
           }
 
         }
-        // copy the tested container image to the shared Nexus container registry
-        echo "Copy the tested container image to the shared Nexus container registry"
-        sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:redhat docker://docker-registry.default.svc.cluster.local:5000/${devProject}/tasks:${devTag} docker://nexus3-registry.gpte-hw-cicd-nexus.svc.cluster.local:5000/tasks:${devTag}"
 
       }
 
@@ -162,6 +157,8 @@ podTemplate(
         echo "Copy image to Nexus container registry"
 
         // TBD: Copy image to Nexus container registry
+        echo "Copy the tested container image to the shared Nexus container registry"
+        sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:\$(oc whoami -t) --dest-creds admin:redhat docker://docker-registry.default.svc.cluster.local:5000/${devProject}/tasks:${devTag} docker://nexus3-registry.gpte-hw-cicd-nexus.svc.cluster.local:5000/tasks:${devTag}"
 
         // TBD: Tag the built image with the production tag.
       }
