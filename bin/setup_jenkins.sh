@@ -20,13 +20,14 @@ oc new-build  -D $'FROM docker.io/openshift/jenkins-agent-maven-35-centos7:v3.11
 
 # Create pipeline build config pointing to the ${REPO} with contextDir `openshift-tasks`
 # TBD
-oc new-build ${GUID}-jenkins/jenkins-agent-appdev~${REPO} \
+#oc new-build ${GUID}-jenkins/jenkins-agent-appdev~${REPO} \
+oc new-build ${REPO} \
     --context-dir=openshift-tasks \
     --env=GUID=${GUID} --env=REPO=${REPO} --env=CLUSTER=${CLUSTER} \
     --strategy=pipeline \
-    --name=jenkins-agent-appdev-pipeline \
-    --allow-missing-images=true \
+    --name=tasks-pipeline \
     -n ${GUID}-jenkins
+#    --allow-missing-images=true \
 
 
 # Make sure that Jenkins is fully up and running before proceeding!
