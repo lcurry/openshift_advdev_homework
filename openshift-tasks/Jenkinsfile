@@ -127,8 +127,9 @@ podTemplate(
         sh 'oc whoami -t > result'
         def token = readFile('result').trim()
         //sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds openshift:${token} --dest-creds admin:redhat docker://docker-registry.default.svc.cluster.local:5000/${jenkinsProject}/tasks:${devTag} docker://nexus3-registry-gpte-hw-cicd.apps.na311.openshift.opentlc.com/tasks:${devTag}"
-        sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds=openshift:${token} --dest-creds=admin:redhat docker://docker-registry.default.svc.cluster.local:5000/${jenkinsProject}/tasks:${devTag} docker://nexus-registry.gpte-hw-cicd.svc.cluster.local:5000/tasks:${devTag}"
-
+        withEnv(["devTag=${devTag}"]){
+          sh "skopeo copy --src-tls-verify=false --dest-tls-verify=false --src-creds=openshift:${token} --dest-creds=admin:redhat docker://docker-registry.default.svc.cluster.local:5000/${jenkinsProject}/tasks:${devTag} docker://nexus-registry.gpte-hw-cicd.svc.cluster.local:5000/tasks:${devTag}"
+        }
         // TBD: Tag the built image with the production tag.
       }
 
