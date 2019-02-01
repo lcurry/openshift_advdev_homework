@@ -131,7 +131,7 @@ podTemplate(
             echo "Trying to set image location on dc/tasks in ${devProject}"
 
             //openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
-            openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc.cluster.local:5000/${devProject}/tasks:${devTag}")
+            openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc.cluster.local:5000/${jenkinsProject}/tasks:${devTag}")
 
             // Deploy the development application.
             openshift.selector("dc", "tasks").rollout().latest();
