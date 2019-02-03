@@ -151,9 +151,10 @@ podTemplate(
             //openshift.set("image", "dc/tasks", "tasks=nexus-registry.gpte-hw-cicd.svc.cluster.local:5000/tasks:${devTag}")
 
             //openshift.set("env", "dc/tasks", "VERSION=${devTag} (tasks-dev)")
-
-            sh 'oc set env dc/tasks VERSION="${devTag} (tasks-dev)" -n ${devProject}'
-
+            withEnv(["devTag=${devTag}","devProject=${devProject}"]){
+              sh 'oc set env dc/tasks VERSION="${devTag} (tasks-dev)" -n ${devProject}'
+            }
+            
             // Deploy the development application.
             openshift.selector("dc", "tasks").rollout().latest();
             // Wait for application to be deployed
