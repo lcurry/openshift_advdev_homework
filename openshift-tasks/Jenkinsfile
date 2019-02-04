@@ -207,6 +207,10 @@ podTemplate(
 
           // rollout blue
           //sh "oc rollout latest dc/${destApp} -n ${prodProject}"
+
+      openshift.withCluster() {
+        openshift.withProject("${prodProject}") {
+
           openshift.selector("dc", "${destApp}").rollout().latest();
           // Wait for application to be deployed
           def dc = openshift.selector("dc", "${destApp}").object()
@@ -219,6 +223,8 @@ podTemplate(
             rc = openshift.selector("rc", "${destApp}-${dc_version}").object()
           }
 
+        }
+      }
 
           // route points to blue so good
 
