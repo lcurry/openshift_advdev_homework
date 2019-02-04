@@ -202,7 +202,7 @@ podTemplate(
         //      Deploy into the other application
         //      Make sure the application is running and ready before proceeding
         withEnv(["destApp=${destApp}","prodTag=${prodTag}","prodProject=${prodProject}","devProject=${devProject}"]){
-          sh 'oc set env dc/${destApp} VERSION="${prodTag} (tasks-blue)" -n ${prodProject}'
+          sh 'oc set env dc/${destApp} VERSION="${prodTag} (${destApp})" -n ${prodProject}'
           sh "oc set image dc/${destApp} ${destApp}=docker-registry.default.svc:5000/${devProject}/tasks:${prodTag} -n ${prodProject}"
 
           // rollout blue
@@ -210,9 +210,9 @@ podTemplate(
           // route points to blue so good
 
           // also deploy Green
-          sh 'oc set env dc/${activeApp} VERSION="${prodTag} (tasks-green)" -n ${prodProject}'
-          sh "oc set image dc/${activeApp} ${activeApp}=docker-registry.default.svc:5000/${devProject}/tasks:${prodTag} -n ${prodProject}"
-          sh "oc rollout latest dc/${activeApp} -n ${prodProject}"
+        //  sh 'oc set env dc/${activeApp} VERSION="${prodTag} (tasks-green)" -n ${prodProject}'
+        //  sh "oc set image dc/${activeApp} ${activeApp}=docker-registry.default.svc:5000/${devProject}/tasks:${prodTag} -n ${prodProject}"
+        //  sh "oc rollout latest dc/${activeApp} -n ${prodProject}"
         }
       }
 
