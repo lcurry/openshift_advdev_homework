@@ -45,6 +45,18 @@ podTemplate(
       def devProject  = "${GUID}-tasks-dev"
       def prodProject = "${GUID}-tasks-prod"
 
+      withEnv(["prodProject=${prodProject}"]){
+        sh "oc get route tasks --template='{{.spec.to.name}}' -n ${prodProject} > activeApp"
+      }
+      def activeApp = readFile('activeApp').trim()
+      def destApp = ""
+      if (activeApp == "tasks-blue") {
+         destApp   = "tasks-green"
+      }
+      else {
+         destApp   = "tasks-blue"
+      }
+
       // Using Maven build the war file
       // Do not run tests in this step
       stage('Build war') {
@@ -187,14 +199,6 @@ podTemplate(
         withEnv(["prodProject=${prodProject}"]){
           sh "oc get route tasks --template='{{.spec.to.name}}' -n ${prodProject} > activeApp"
         }
-        def activeApp = readFile('activeApp').trim()
-        def destApp = ""
-        if (activeApp == "tasks-blue") {
-           destApp   = "tasks-green"
-        }
-        else {
-           destApp   = "tasks-blue"
-        }
         echo "destApp is ${destApp}"
         // TBD: Determine which application is active
         //      Set Image, Set VERSION
@@ -230,14 +234,6 @@ podTemplate(
       stage('Switch over to new Version') {
         withEnv(["prodProject=${prodProject}"]){
           sh "oc get route tasks --template='{{.spec.to.name}}' -n ${prodProject} > activeApp"
-        }
-        def activeApp = readFile('activeApp').trim()
-        def destApp = ""
-        if (activeApp == "tasks-blue") {
-           destApp   = "tasks-green"
-        }
-        else {
-           destApp   = "tasks-blue"
         }
         echo "Switching Production application to ${destApp}."
         // TBD: Execute switch
