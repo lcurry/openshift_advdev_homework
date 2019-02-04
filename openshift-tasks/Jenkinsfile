@@ -207,34 +207,38 @@ podTemplate(
           // rollout blue
           //sh "oc rollout latest dc/${destApp} -n ${prodProject}"
 
-      openshift.withCluster() {
-        openshift.withProject("${prodProject}") {
+          openshift.withCluster() {
+            openshift.withProject("${prodProject}") {
 
-          openshift.selector("dc", "${destApp}").rollout().latest();
-          // Wait for application to be deployed
-          def dc = openshift.selector("dc", "${destApp}").object()
-          def dc_version = dc.status.latestVersion
-          def rc = openshift.selector("rc", "${destApp}-${dc_version}").object()
+              openshift.selector("dc", "${destApp}").rollout().latest();
+              // Wait for application to be deployed
+              def dc = openshift.selector("dc", "${destApp}").object()
+              def dc_version = dc.status.latestVersion
+              def rc = openshift.selector("rc", "${destApp}-${dc_version}").object()
 
-          echo "Waiting for ReplicationController ${destApp}-${dc_version} to be ready"
-          while (rc.spec.replicas != rc.status.readyReplicas) {
-            sleep 5
-            rc = openshift.selector("rc", "${destApp}-${dc_version}").object()
+              echo "Waiting for ReplicationController ${destApp}-${dc_version} to be ready"
+              while (rc.spec.replicas != rc.status.readyReplicas) {
+                sleep 5
+                rc = openshift.selector("rc", "${destApp}-${dc_version}").object()
+              }
+
+            }
           }
-
-        }
-      }
-
-          // route points to blue so good
-
-          // also deploy Green
-        //  sh 'oc set env dc/${activeApp} VERSION="${prodTag} (tasks-green)" -n ${prodProject}'
-        //  sh "oc set image dc/${activeApp} ${activeApp}=docker-registry.default.svc:5000/${devProject}/tasks:${prodTag} -n ${prodProject}"
-        //  sh "oc rollout latest dc/${activeApp} -n ${prodProject}"
         }
       }
 
       stage('Switch over to new Version') {
+        withEnv(["prodProject=${prodProject}"]){
+          sh "oc get route tasks --template='{{.spec.to.name}}' -n ${prodProject} > activeApp"
+        }
+        def activeApp = readFile('activeApp').trim()
+        def destApp = ""
+        if (activeApp == "tasks-blue") {
+           destApp   = "tasks-green"
+        }
+        else {
+           destApp   = "tasks-blue"
+        }
         echo "Switching Production application to ${destApp}."
         // TBD: Execute switch
         withEnv(["destApp=${destApp}","prodProject=${prodProject}"]){
