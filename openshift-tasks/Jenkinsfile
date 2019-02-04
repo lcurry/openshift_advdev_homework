@@ -180,23 +180,22 @@ podTemplate(
       }
 
 
-
-      // Blue/Green Deployment into Production
-      // -------------------------------------
-      withEnv(["prodProject=${prodProject}"]){
-        sh "oc get route tasks --template='{{.spec.to.name}}' -n ${prodProject} > activeApp"
-      }
-      def activeApp = readFile('activeApp').trim()
-      def destApp = ""
-      if (activeApp == "tasks-blue") {
-         destApp   = "tasks-green"
-      }
-      else {
-         destApp   = "tasks-blue"
-      }
-
       stage('Blue/Green Production Deployment') {
         echo "Blue/Green Deployment"
+        // Blue/Green Deployment into Production
+        // -------------------------------------
+        withEnv(["prodProject=${prodProject}"]){
+          sh "oc get route tasks --template='{{.spec.to.name}}' -n ${prodProject} > activeApp"
+        }
+        def activeApp = readFile('activeApp').trim()
+        def destApp = ""
+        if (activeApp == "tasks-blue") {
+           destApp   = "tasks-green"
+        }
+        else {
+           destApp   = "tasks-blue"
+        }
+        echo "destApp is ${destApp}"
         // TBD: Determine which application is active
         //      Set Image, Set VERSION
         //      Deploy into the other application
