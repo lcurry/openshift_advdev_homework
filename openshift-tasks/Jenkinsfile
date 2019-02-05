@@ -29,7 +29,7 @@ podTemplate(
     // and not inside the scope of a stage - otherwise they would not
     // be accessible from other stages.
     // Extract version from the pom.xml
-    def version = getVersionFromPom("pom.xml")
+    def version = getVersionFromPom("openshift-tasks/pom.xml")
 
     // TBD Set the tag for the development image: version + build number
     def devTag  = version + "-" + "${env.BUILD_NUMBER}"
@@ -45,9 +45,10 @@ podTemplate(
     // Do not run tests in this step
     stage('Build war') {
       echo "Building version ${devTag}"
-
       // TBD: Execute Maven Build
-      sh "${mvnCmd} clean package -DskipTests"
+      dir("openshift-tasks") {
+        sh "${mvnCmd} clean package -DskipTests"
+      }
     }
 
     // TBD: The next two stages should run in parallel
@@ -55,25 +56,28 @@ podTemplate(
     // Using Maven run the unit tests
     stage('Unit Tests') {
       echo "Running Unit Tests"
-
+      dir("openshift-tasks") {
       // TBD: Execute Unit Tests
       //sh "${mvnCmd} test"
+      }
     }
 
     // Using Maven to call SonarQube for Code Analysis
     stage('Code Analysis') {
       echo "Running Code Analysis"
-
+      dir("openshift-tasks") {
       // TBD: Execute Sonarqube Tests
       //sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.gpte-hw-cicd.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME}-${devTag}"
+      }
     }
 
     // Publish the built war file to Nexus
     stage('Publish to Nexus') {
       echo "Publish to Nexus"
-
-      // TBD: Publish to Nexus
-      sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3.gpte-hw-cicd.svc.cluster.local:8081/repository/releases/"
+      dir("openshift-tasks") {
+        // TBD: Publish to Nexus
+        sh "${mvnCmd} deploy -DskipTests=true -DaltDeploymentRepository=nexus::default::http://nexus3.gpte-hw-cicd.svc.cluster.local:8081/repository/releases/"
+      }
     }
 
     // Build the OpenShift Image in OpenShift and tag it.
