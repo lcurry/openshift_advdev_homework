@@ -123,6 +123,25 @@ podTemplate(
        sh 'oc set image dc/tasks tasks=8ff4-tasks-dev/tasks:${devTag} --source=imagestreamtag -n 8ff4-tasks-dev'
        sh 'oc rollout latest dc/tasks -n 8ff4-tasks-dev'
        sh 'oc tag tasks:${devTag} tasks:${prodTag} -n 8ff4-tasks-dev'
+
+       // wait till deployed and available
+       openshift.withCluster() {
+         openshift.withProject("${devProject}") {
+         openshift.selector("dc", "tasks").rollout().latest();
+         // Wait for application to be deployed
+         def dc = openshift.selector("dc", "tasks").object()
+         def dc_version = dc.status.latestVersion
+         def rc = openshift.selector("rc", "tasks-${dc_version}").object()
+
+         echo "Waiting for ReplicationController tasks-${dc_version} to be ready"
+         while (rc.spec.replicas != rc.status.readyReplicas) {
+           sleep 5
+           rc = openshift.selector("rc", "tasks-${dc_version}").object()
+         }
+       }
+     }  // end check for available
+
+
     }
    }
 
@@ -141,6 +160,24 @@ podTemplate(
           sh 'oc set env dc/${destApp} VERSION="${prodTag} (tasks-prod)" -n 8ff4-tasks-prod'
           sh "oc set image dc/${destApp} ${destApp}=docker-registry.default.svc:5000/8ff4-tasks-dev/tasks:${prodTag} -n 8ff4-tasks-prod"
           sh "oc rollout latest dc/${destApp} -n 8ff4-tasks-prod"
+          // wait till depoloyed and available
+          // wait till deployed and available
+          openshift.withCluster() {
+            openshift.withProject("${prodProject}") {
+            openshift.selector("dc", "tasks").rollout().latest();
+            // Wait for application to be deployed
+            def dc = openshift.selector("dc", "tasks").object()
+            def dc_version = dc.status.latestVersion
+            def rc = openshift.selector("rc", "tasks-${dc_version}").object()
+
+            echo "Waiting for ReplicationController tasks-${dc_version} to be ready"
+            while (rc.spec.replicas != rc.status.readyReplicas) {
+              sleep 5
+              rc = openshift.selector("rc", "tasks-${dc_version}").object()
+            }
+          }
+        }  // end check for available
+
         }
     }
 
