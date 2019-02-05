@@ -89,28 +89,16 @@ podTemplate(
           // Start Binary Build in OpenShift using the file we just published
           // The filename is openshift-tasks.war in the 'target' directory of your current
           // Jenkins workspace
-          script {
-            openshift.withCluster() {
-              openshift.withProject("${devProject}") {
-                echo "Using project!: ${devProject}"
-                echo "Running openshift.selector.exists()"
-                // start build of image based on standard eap template
-                def buildConfig = openshift.selector("bc", "tasks")
-                echo("Running startBuild()")
-                //buildConfig.startBuild("--from-file=./target/openshift-tasks.war", "--wait=true")
-                buildConfig.startBuild("--from-file=http://nexus3.gpte-hw-cicd.svc.cluster.local:8081/repository/releases/org/jboss/quickstarts/eap/tasks/${version}/tasks-${version}.war", "--wait=true")
-                // OR use the file you just published into Nexus:
-                // "--from-file=http://nexus3.${prefix}-nexus.svc.cluster.local:8081/repository/releases/org/jboss/quickstarts/eap/tasks/${version}/tasks-${version}.war"
-                echo "Running openshift.tag"
-                openshift.tag("tasks:latest", "tasks:${devTag}")
 
-                // clean up bc
-                //openshift.delete("bc", "tasks")
-
-              }
-            }
+          withEnv(["version=${version}"]) {
+           sh 'oc start-build tasks -n 8ff4-tasks-dev -F --from-file=http://nexus3.gpte-hw-cicd.svc.cluster.local:8081/repository/releases/org/jboss/quickstarts/eap/tasks/${version}/tasks-${version}.war'
           }
+    }
 
+    stage('Tag image') {
+     withEnv(["devTag=${devTag}"]){
+      sh 'oc tag 8ff4-tasks-dev/tasks:latest 8ff4-tasks-dev/tasks:${devTag}'
+     }
     }
 
     // Copy Image to Nexus container registry
