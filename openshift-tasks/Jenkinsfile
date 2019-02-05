@@ -127,7 +127,7 @@ podTemplate(
        // wait till deployed and available
        openshift.withCluster() {
          openshift.withProject("${devProject}") {
-         openshift.selector("dc", "tasks").rollout().latest();
+         //openshift.selector("dc", "tasks").rollout().latest();
          // Wait for application to be deployed
          def dc = openshift.selector("dc", "tasks").object()
          def dc_version = dc.status.latestVersion
@@ -164,7 +164,7 @@ podTemplate(
           // wait till deployed and available
           openshift.withCluster() {
             openshift.withProject("${prodProject}") {
-            openshift.selector("dc", "tasks").rollout().latest();
+            //openshift.selector("dc", "tasks").rollout().latest();
             // Wait for application to be deployed
             def dc = openshift.selector("dc", "tasks").object()
             def dc_version = dc.status.latestVersion
