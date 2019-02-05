@@ -58,7 +58,7 @@ podTemplate(
       echo "Running Unit Tests"
       dir("openshift-tasks") {
       // TBD: Execute Unit Tests
-      //sh "${mvnCmd} test"
+      sh "${mvnCmd} test"
       }
     }
 
@@ -67,7 +67,7 @@ podTemplate(
       echo "Running Code Analysis"
       dir("openshift-tasks") {
       // TBD: Execute Sonarqube Tests
-      //sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.gpte-hw-cicd.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME}-${devTag}"
+      sh "${mvnCmd} sonar:sonar -Dsonar.host.url=http://sonarqube.gpte-hw-cicd.svc.cluster.local:9000/ -Dsonar.projectName=${JOB_BASE_NAME}-${devTag}"
       }
     }
 
@@ -161,7 +161,6 @@ podTemplate(
           sh "oc set image dc/${destApp} ${destApp}=docker-registry.default.svc:5000/8ff4-tasks-dev/tasks:${prodTag} -n 8ff4-tasks-prod"
           sh "oc rollout latest dc/${destApp} -n 8ff4-tasks-prod"
           // wait till depoloyed and available
-          // wait till deployed and available
           openshift.withCluster() {
             openshift.withProject("${prodProject}") {
             //openshift.selector("dc", "tasks").rollout().latest();
