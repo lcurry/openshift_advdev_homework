@@ -117,49 +117,14 @@ podTemplate(
       // TBD: Tag the built image with the production tag.
     }
 
-    // Deploy the built image to the Development Environment.
-    stage('Deploy to Dev') {
-      echo "Deploying container image to Development Project ${devProject}"
-      // TBD: Deploy to development Project
-      //      Set Image, Set VERSION
-      //      Make sure the application is running and ready before proceeding
-      openshift.withCluster() {
-        openshift.withProject("${devProject}") {
-          echo "Trying to set image location in Nexus on dc/tasks in ${devProject}"
-
-          openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc:5000/${devProject}/tasks:${devTag}")
-          //openshift.set("image", "dc/tasks", "tasks=docker-registry.default.svc.cluster.local:5000/${jenkinsProject}/tasks:${devTag}")
-          //openshift.set("image", "dc/tasks", "tasks=nexus-registry.gpte-hw-cicd.svc.cluster.local:5000/tasks:${devTag}")
-
-          //openshift.set("env", "dc/tasks", "VERSION=${devTag} (tasks-dev)")
-          withEnv(["devTag=${devTag}","devProject=${devProject}"]){
-            sh 'oc set env dc/tasks VERSION="${devTag} (tasks-dev)" -n ${devProject}'
-          }
-
-          // Deploy the development application.
-          openshift.selector("dc", "tasks").rollout().latest();
-          // Wait for application to be deployed
-          def dc = openshift.selector("dc", "tasks").object()
-          def dc_version = dc.status.latestVersion
-          def rc = openshift.selector("rc", "tasks-${dc_version}").object()
-
-          echo "Waiting for ReplicationController tasks-${dc_version} to be ready"
-          while (rc.spec.replicas != rc.status.readyReplicas) {
-            sleep 5
-            rc = openshift.selector("rc", "tasks-${dc_version}").object()
-          }
-
-          // tag with prod
-          withEnv(["devTag=${devTag}","prodTag=${prodTag}","devProject=${devProject}"]){
-            sh 'oc tag tasks:${devTag} tasks:${prodTag} -n ${devProject}'
-          }
-
-        }
-
-      }
-
+    stage('Deploy to dev') {
+    withEnv(["devTag=${devTag}","prodTag=${prodTag}"]){
+       sh 'oc set env dc/tasks VERSION="${devTag} (tasks-dev)" -n 8ff4-tasks-dev'
+       sh 'oc set image dc/tasks tasks=8ff4-tasks-dev/tasks:${devTag} --source=imagestreamtag -n 8ff4-tasks-dev'
+       sh 'oc rollout latest dc/tasks -n 8ff4-tasks-dev'
+       sh 'oc tag tasks:${devTag} tasks:${prodTag} -n 8ff4-tasks-dev'
     }
-
+   }
 
     sh "oc get route tasks --template='{{.spec.to.name}}' -n 8ff4-tasks-prod > activeApp"
     def activeApp = readFile('activeApp').trim()
