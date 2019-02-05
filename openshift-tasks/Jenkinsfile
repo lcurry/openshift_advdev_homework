@@ -193,7 +193,8 @@ podTemplate(
           sh "oc patch route/tasks -n 8ff4-tasks-prod -p \'{\"spec\":{\"to\":{\"name\":\"${destApp}\"}}}\' -n 8ff4-tasks-prod"
         }
     }
-
+  }
+}
     // Convenience Functions to read version from the pom.xml
     // Do not change anything below this line.
     // --------------------------------------------------------
@@ -201,5 +202,3 @@ podTemplate(
       def matcher = readFile(pom) =~ '<version>(.+)</version>'
       matcher ? matcher[0][1] : null
     }
-  }
-}
